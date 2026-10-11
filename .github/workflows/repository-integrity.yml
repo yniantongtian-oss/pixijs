@@ -35,7 +35,8 @@ jobs:
           python-version: "3.12"
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
         with:
-          node-version: "24"
+          # Match upstream's Electron installer compatibility baseline.
+          node-version: "24.15.0"
       - name: Run project acceptance checks
         shell: bash
         env:
