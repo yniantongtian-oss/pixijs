@@ -26,7 +26,8 @@ jobs:
       - name: Check tracked paths and package manifests
         run: python .github/quality/check_repository.py
   project-check:
-    runs-on: ubuntu-latest
+    # Match the upstream Electron unit-test runner image.
+    runs-on: ubuntu-22.04
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
@@ -37,9 +38,18 @@ jobs:
         with:
           # Match upstream's Electron installer compatibility baseline.
           node-version: "24.15.0"
-      - name: Run project acceptance checks
+      - name: Install locked dependencies
+        timeout-minutes: 10
         shell: bash
-        run: |
-          npm ci --registry=https://registry.npmjs.org
-          NODE_ENV=production xvfb-run --auto-servernum npm run test -- unit --maxWorkers=50% --ci
-          npm run build:lib
+        run: npm ci --registry=https://registry.npmjs.org
+      - name: Run Electron unit tests
+        timeout-minutes: 20
+        shell: bash
+        env:
+          NODE_ENV: production
+          # Isolated CI runner flags documented by jest-electron.
+          JEST_ELECTRON_STARTUP_ARGS: --disable-dev-shm-usage --no-sandbox --enable-logging=stderr
+        run: xvfb-run --auto-servernum npm run test -- unit --maxWorkers=50% --ci
+      - name: Build distributable library
+        shell: bash
+        run: npm run build:lib
