@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   publish-prod:
-    if: github.event_name == 'release'
+    if: ${{ (github.repository == 'pixijs/pixijs') && (github.event_name == 'release') }}
     uses: ./.github/workflows/release.yml
     secrets: inherit
     permissions:
@@ -22,7 +22,7 @@ jobs:
       contents: write
 
   publish-branch:
-    if: github.event_name == 'push'
+    if: ${{ (github.repository == 'pixijs/pixijs') && (github.event_name == 'push') }}
     uses: ./.github/workflows/publish-branch.yaml
     permissions:
       id-token: write
